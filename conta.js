@@ -1,136 +1,118 @@
-// ======================
-// CRIAR CONTA PADRÃO
-// ======================
-
-if(!localStorage.getItem("conta")){
-    const conta={
-        saldo:2500,
-        historico:[]
-    };
-
-    localStorage.setItem("conta",JSON.stringify(conta));
+if(!localStorage.getItem("conta"))
+function getSaldo() {
+  let saldo = parseFloat(localStorage.getItem("saldo"));
+let historico = JSON.parse(sessionStorage.getItem("historico")) || [];
 }
-
-let conta = JSON.parse(localStorage.getItem("conta"));
-
-
-// ======================
-// MOSTRAR SALDO
-// ======================
 
 function atualizarSaldo(){
 document.getElementById("saldo")
 .innerText="R$ "+conta.saldo.toFixed(2).replace(".",",");
 }
 
-atualizarSaldo();
-
-
-// ======================
-// MOSTRAR / OCULTAR SALDO
-// ======================
-
-let visivel=true;
-
-function toggleSaldo(){
-
-const saldo=document.getElementById("saldo");
-
-if(visivel){
-saldo.innerText="••••••";
-visivel=false;
-}else{
-atualizarSaldo();
-visivel=true;
-}
-
+function formatar(valor) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
 }
 
 
-// ======================
-// DEPOSITAR
-// ======================
-
-document.querySelector(".depositar")
-.addEventListener("click",()=>{
-
-let valor=parseFloat(document.querySelector(".valor").value);
-
-if(!valor || valor<=0){
-alert("Digite um valor válido");
-return;
+if (!localStorage.getItem("saldo")) {
+  alert("Crie uma conta primeiro!");
+  window.location.href = "index.html";
 }
 
-conta.saldo+=valor;
 
-conta.historico.unshift(`💰 Depósito: + R$ ${valor.toFixed(2)}`);
+let saldo = parseFloat(localStorage.getItem("saldo"));
+let historico = JSON.parse(sessionStorage.getItem("historico")) || [];
 
-salvar();
+
+function formatar(valor) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+
+function atualizarSaldo() {
+  document.getElementById("saldo").innerText = formatar(saldo);
+}
+
+
+let visivel = true;
+
+function toggleSaldo() {
+  const el = document.getElementById("saldo");
+
+  if (visivel) {
+    el.innerText = "••••••";
+  } else {
+    atualizarSaldo();
+  }
+
+  visivel = !visivel;
+}
+
+
+document.querySelector(".depositar").addEventListener("click", () => {
+  let valor = parseFloat(document.querySelector(".valor").value);
+
+  if (!valor || valor <= 0) {
+    alert("Valor inválido");
+    return;
+  }
+
+  saldo += valor;
+  historico.unshift(`💰 Depósito: + ${formatar(valor)}`);
+
+  salvar();
 });
 
 
-// ======================
-// PIX
-// ======================
+document.querySelector(".pix").addEventListener("click", () => {
+  let valor = parseFloat(document.querySelector(".valor").value);
 
-document.querySelector(".pix")
-.addEventListener("click",()=>{
+  if (!valor || valor <= 0) {
+    alert("Valor inválido");
+    return;
+  }
 
-let valor=parseFloat(document.querySelector(".valor").value);
+  if (valor > saldo) {
+    alert("Saldo insuficiente");
+    return;
+  }
 
-if(!valor || valor<=0){
-alert("Digite um valor válido");
-return;
-}
+  saldo -= valor;
+  historico.unshift(`💸 PIX: - ${formatar(valor)}`);
 
-if(valor>conta.saldo){
-alert("Saldo insuficiente");
-return;
-}
-
-conta.saldo-=valor;
-
-conta.historico.unshift(`💸 Saque: - R$ ${valor.toFixed(2)}`);
-
-salvar();
+  salvar();
 });
 
 
-// ======================
-// SALVAR DADOS
-// ======================
+function salvar() {
+  localStorage.setItem("saldo", saldo);
+  sessionStorage.setItem("historico", JSON.stringify(historico));
 
-function salvar(){
+  atualizarSaldo();
+  mostrarHistorico();
 
-localStorage.setItem("conta",JSON.stringify(conta));
+  document.querySelector(".valor").value = "";
+}
+
+
+function mostrarHistorico() {
+  const area = document.getElementById("historico");
+  area.innerHTML = "";
+
+  historico.forEach(item => {
+    const div = document.createElement("div");
+    div.classList.add("item");
+    div.innerText = item;
+    area.appendChild(div);
+  });
+}
+
 
 atualizarSaldo();
-mostrarHistorico();
-
-document.querySelector(".valor").value="";
-}
-
-
-// ======================
-// MOSTRAR HISTÓRICO
-// ======================
-
-function mostrarHistorico(){
-
-const area=document.getElementById("historico");
-
-area.innerHTML="";
-
-conta.historico.forEach(item=>{
-
-const div=document.createElement("div");
-div.classList.add("item");
-div.innerText=item;
-
-area.appendChild(div);
-
-});
-
-}
-
 mostrarHistorico();

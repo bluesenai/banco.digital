@@ -1,22 +1,21 @@
-const botao = document.getElementById("btnCriar");
+const botao = document.getElementById("criar");
 
-botao.addEventListener("click", criarConta);
+botao.addEventListener("click", function () {
 
-function criarConta() {
   const input = document.getElementById("saldoInput");
-  const erro = document.getElementById("erro");
+  const valor = parseFloat(input.value);
 
-  let valor = parseFloat(input.value);
-
-  if (isNaN(valor) || valor <= 0) {
-    erro.style.display = "block";
-    erro.textContent = "Digite um valor válido maior que zero!";
+  if (isNaN(valor) || valor < 0) {
+    alert("Digite um valor válido!");
     return;
   }
 
-  // salva o saldo (opcional, mas MUITO útil)
   localStorage.setItem("saldo", valor);
 
-  // redireciona para outra página
+
+  sessionStorage.setItem("historico", JSON.stringify([]));
+
+console.log("Indo para conta.html...");
+
   window.location.href = "conta.html";
-}
+});
